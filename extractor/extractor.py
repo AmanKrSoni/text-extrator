@@ -16,13 +16,16 @@ file_name_prefix = "page_"
 file_extension = ".jpg"
 file_operation = None
 
+log = logging.getLogger("extractor")
+logging.basicConfig(level=logging.INFO)
+
 
 def delete_file(file):
     try:
         util.delete_file(file)
     except Exception as e:
-        logging.info("error while deleting file : {}", file)
-        logging.error(traceback.format_exc())
+        log.info("error while deleting file : {}", file)
+        log.error(traceback.format_exc())
 
 
 def set_file_limit(counter):
@@ -64,7 +67,7 @@ def convert_pdf_to_img(file):
         global file_limit
         file_limit = image_counter - 1
     except Exception as e:
-        logging.error(traceback.format_exc())
+        log.error(traceback.format_exc())
 
 
 def extract_text():
@@ -79,8 +82,8 @@ def extract_text():
             file_write(content)
             delete_file(file_name)
     except Exception as e:
-        logging.error("error while extracting text for file : {}", file_name)
-        logging.error(traceback.format_exc())
+        log.error("error while extracting text for file : {}", file_name)
+        log.error(traceback.format_exc())
     finally:
         file_close()
 
@@ -95,5 +98,5 @@ def pre_process_img(file):
         # return thresh
 
     except Exception as e:
-        logging.error("error while pre-processing file : {}", file)
-        logging.error(traceback.format_exc())
+        log.error("error while pre-processing file : {}", file)
+        log.error(traceback.format_exc())

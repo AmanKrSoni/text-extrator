@@ -1,3 +1,5 @@
+import logging
+import traceback
 import os
 import urllib.request
 from flask import Flask, request, redirect, jsonify, app
@@ -7,7 +9,8 @@ from util import utility as util
 from service import tesseract_service as ts
 from app import app
 
-
+log = logging.getLogger("tesseract-controller")
+logging.basicConfig(level=logging.INFO)
 # app = Flask(__name__)
 
 
@@ -20,8 +23,9 @@ def health():
 
 
 @app.route(config.request_prefix + 'multiple-files-upload', methods=['POST'])
-def upload_file():
+def extract_text():
     # check if the post request has the file part
+    log.info("extracting text ...")
     if config.file_upload_key not in request.files:
         resp = jsonify({'message': 'No file part found in the request'})
         resp.status_code = 400
@@ -32,13 +36,9 @@ def upload_file():
     errors = {}
     success = False
 
-    for file in files:
-        if file:
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(config.upload_folder, filename))
-            success = True
-        else:
-            errors[file.filename] = 'File unable to upload'
+    ts.clean_up()
+
+    success = ts.upload_files(files=files, success=success, errors=errors)
 
     if success and errors:
         errors['message'] = 'Files successfully uploaded'
